@@ -117,3 +117,7 @@ The DAFNE API enforces:
   (`cursor` query param, `Link: rel="next"` header). This integration
   follows those links automatically until it has every feature for the
   bbox, so a dense bounding box won't silently return an incomplete list.
+
+## Development
+
+Parts of this code were developed with AI assistance.
