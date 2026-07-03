@@ -77,9 +77,6 @@ CHAdeMO station shows the CHAdeMO icon), rather than a generic plug icon.
 > - Power ratings are each connector's rated maximum, not a live
 >   measurement. A car often draws less (e.g. 11 kW on a 22 kW-rated
 >   connector) because it's limited by its own onboard charger.
-> - There's no "Open" sensor: the API's `open` field is `false` on
->   nearly every charge point we've seen, including active public ones,
->   so it isn't reliable enough to expose.
 > - The Operator sensor falls back to the short NDW operator code (e.g.
 >   `GFX`, `LMS`, `EFL`) when no friendlier name is available. Look these
 >   up in the [Benelux ID-register](https://www.benelux-idro.eu/en/id-register).
