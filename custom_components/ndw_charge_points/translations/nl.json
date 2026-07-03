@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Zoekgebied (bounding box) instellen",
-        "description": "Geef het gebied op waarin je naar laadpunten wilt zoeken, in de vorm van een bounding box.\n\nTeken een rechthoek op https://bboxfinder.com en kopieer de coördinaten die onder \"Box\" verschijnen naar het veld hieronder (formaat: min_lon,min_lat,max_lon,max_lat). Voorbeeld: {bbox_example}.",
+        "description": "Geef het gebied op waarin je naar laadpunten wilt zoeken, in de vorm van een bounding box.\n\nTeken een rechthoek op {bboxfinder_url} en kopieer de coördinaten die onder \"Box\" verschijnen naar het veld hieronder (formaat: min_lon,min_lat,max_lon,max_lat). Voorbeeld: {bbox_example}.",
         "data": {
           "bbox": "Bounding box"
         }

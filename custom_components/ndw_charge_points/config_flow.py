@@ -43,6 +43,7 @@ from .const import (
 )
 
 BBOX_EXAMPLE = "5.136386,52.081982,5.172843,52.097560"
+BBOXFINDER_URL = "https://bboxfinder.com"
 
 
 class BboxTooLargeError(ValueError):
@@ -131,7 +132,10 @@ class NwbChargePointsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         errors: dict[str, str] = {}
-        description_placeholders: dict[str, str] = {"bbox_example": BBOX_EXAMPLE}
+        description_placeholders: dict[str, str] = {
+            "bbox_example": BBOX_EXAMPLE,
+            "bboxfinder_url": BBOXFINDER_URL,
+        }
         if user_input is not None:
             try:
                 bbox = _parse_bbox(user_input[CONF_BBOX])

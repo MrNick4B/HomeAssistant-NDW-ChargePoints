@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Define a bounding box",
-        "description": "Enter the area you want to search for EV charge points as a bounding box.\n\nDraw a box on https://bboxfinder.com, then copy the coordinates shown under \"Box\" and paste it in the field below (format: min_lon,min_lat,max_lon,max_lat). Example: {bbox_example}.",
+        "description": "Enter the area you want to search for EV charge points as a bounding box.\n\nDraw a box on {bboxfinder_url}, then copy the coordinates shown under \"Box\" and paste it in the field below (format: min_lon,min_lat,max_lon,max_lat). Example: {bbox_example}.",
         "data": {
           "bbox": "Bounding box"
         }
