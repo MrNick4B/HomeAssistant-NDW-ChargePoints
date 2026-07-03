@@ -6,6 +6,7 @@
   "documentation": "https://docs.ndw.nu/data-uitwisseling/interface-beschrijvingen/dafne-api/dafne_api_consumer_pull/",
   "integration_type": "device",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/MrNick4B/HomeAssistant-NDW-ChargePoints/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
