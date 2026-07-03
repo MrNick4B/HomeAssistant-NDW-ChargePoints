@@ -1,0 +1,11 @@
+{
+  "domain": "ndw_charge_points",
+  "name": "NDW Charge Points",
+  "codeowners": ["@MrNick4B"],
+  "config_flow": true,
+  "documentation": "https://docs.ndw.nu/data-uitwisseling/interface-beschrijvingen/dafne-api/dafne_api_consumer_pull/",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}

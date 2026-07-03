@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Editors
+.vscode/
+.idea/
+
+# Claude Code session data (not part of the published integration)
+.claude/
+
+# OS cruft
+.DS_Store
+Thumbs.db

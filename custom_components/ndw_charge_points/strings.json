@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Define a bounding box",
+        "description": "Enter the area you want to search for EV charge points as a bounding box.\n\nDraw a box on https://bboxfinder.com, then copy the coordinates shown under \"Box\" and paste it in the field below (format: min_lon,min_lat,max_lon,max_lat). Example: {bbox_example}.",
+        "data": {
+          "bbox": "Bounding box"
+        }
+      },
+      "stations": {
+        "title": "Select a charge point",
+        "description": "{result_count_notice} Choose the charge point you want to monitor. To add another charge point from this same area, run this setup again.",
+        "data": {
+          "station_id": "Charge point"
+        }
+      }
+    },
+    "error": {
+      "invalid_bbox": "Invalid bounding box. Use the format min_lon,min_lat,max_lon,max_lat.",
+      "bbox_too_large": "This bounding box is too large ({bbox_size}). The NDW API allows a maximum area of 1.0 square degree, roughly 100 × 75 km at Dutch latitudes. Draw a smaller box.",
+      "cannot_connect": "Could not connect to the NDW charge point API.",
+      "rate_limited": "Too many requests to the NDW API right now (max 10 per second). Please wait a moment and try again.",
+      "no_stations_found": "No charge points were found within this bounding box."
+    },
+    "abort": {
+      "already_configured": "This charge point is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update interval",
+        "description": "How often should this charge point be polled?",
+        "data": {
+          "scan_interval": "Update interval"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "available": { "name": "Available connectors" },
+      "total": { "name": "Total connectors" },
+      "connector_type": {
+        "name": "Connector type",
+        "state": {
+          "CHADEMO": "CHAdeMO",
+          "CHAOJI": "ChaoJi",
+          "DOMESTIC_A": "Domestic plug type A",
+          "DOMESTIC_B": "Domestic plug type B",
+          "DOMESTIC_C": "Domestic plug type C (Europlug)",
+          "DOMESTIC_D": "Domestic plug type D",
+          "DOMESTIC_E": "Domestic plug type E (French/Belgian)",
+          "DOMESTIC_F": "Domestic plug type F (Schuko)",
+          "DOMESTIC_G": "Domestic plug type G (British)",
+          "DOMESTIC_H": "Domestic plug type H",
+          "DOMESTIC_I": "Domestic plug type I",
+          "DOMESTIC_J": "Domestic plug type J",
+          "DOMESTIC_K": "Domestic plug type K",
+          "DOMESTIC_L": "Domestic plug type L (Italian)",
+          "DOMESTIC_M": "Domestic plug type M",
+          "DOMESTIC_N": "Domestic plug type N",
+          "DOMESTIC_O": "Domestic plug type O",
+          "GBT_AC": "GB/T AC",
+          "GBT_DC": "GB/T DC",
+          "IEC_60309_2_single_16": "Industrial socket, 1-phase 16A (IEC 60309)",
+          "IEC_60309_2_three_16": "Industrial socket, 3-phase 16A (IEC 60309)",
+          "IEC_60309_2_three_32": "Industrial socket, 3-phase 32A (IEC 60309)",
+          "IEC_60309_2_three_64": "Industrial socket, 3-phase 64A (IEC 60309)",
+          "IEC_62196_T1": "Type 1 (IEC 62196, J1772)",
+          "IEC_62196_T1_COMBO": "Type 1 Combo (CCS1)",
+          "IEC_62196_T2": "Type 2 (IEC 62196, Mennekes)",
+          "IEC_62196_T2_COMBO": "Type 2 Combo (CCS2)",
+          "IEC_62196_T3A": "Type 3A (IEC 62196)",
+          "IEC_62196_T3C": "Type 3C (IEC 62196, Scame)",
+          "NEMA_5_20": "NEMA 5-20",
+          "NEMA_6_30": "NEMA 6-30",
+          "NEMA_6_50": "NEMA 6-50",
+          "NEMA_10_30": "NEMA 10-30",
+          "NEMA_10_50": "NEMA 10-50",
+          "NEMA_14_30": "NEMA 14-30",
+          "NEMA_14_50": "NEMA 14-50",
+          "PANTOGRAPH_BOTTOM_UP": "Pantograph (bottom-up)",
+          "PANTOGRAPH_TOP_DOWN": "Pantograph (top-down)",
+          "TESLA_R": "Tesla (Roadster)",
+          "TESLA_S": "Tesla (Model S / destination)"
+        }
+      },
+      "connector_format": {
+        "name": "Connector format",
+        "state": {
+          "CABLE": "Tethered cable",
+          "SOCKET": "Socket (bring your own cable)"
+        }
+      },
+      "power_max": { "name": "Highest power rating" },
+      "power_min": { "name": "Lowest power rating" },
+      "power_type": {
+        "name": "Power type",
+        "state": {
+          "AC1": "AC (1-phase)",
+          "AC2": "AC (2-phase)",
+          "AC2_SPLIT": "AC (split-phase)",
+          "AC3": "AC (3-phase)",
+          "DC": "DC (fast charging)"
+        }
+      },
+      "address": { "name": "Address" },
+      "operator": { "name": "Operator" },
+      "last_updated": { "name": "Last updated" },
+      "country": { "name": "Country" },
+      "station_id": { "name": "Station ID" }
+    },
+    "device_tracker": {
+      "location": { "name": "Location" }
+    }
+  }
+}

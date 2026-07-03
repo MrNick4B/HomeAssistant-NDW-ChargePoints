@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zoekgebied (bounding box) instellen",
+        "description": "Geef het gebied op waarin je naar laadpunten wilt zoeken, in de vorm van een bounding box.\n\nTeken een rechthoek op https://bboxfinder.com en kopieer de coördinaten die onder \"Box\" verschijnen naar het veld hieronder (formaat: min_lon,min_lat,max_lon,max_lat). Voorbeeld: {bbox_example}.",
+        "data": {
+          "bbox": "Bounding box"
+        }
+      },
+      "stations": {
+        "title": "Kies een laadpunt",
+        "description": "{result_count_notice} Kies het laadpunt dat je wilt monitoren. Wil je nog een laadpunt uit hetzelfde gebied toevoegen, doorloop deze installatie dan nogmaals.",
+        "data": {
+          "station_id": "Laadpunt"
+        }
+      }
+    },
+    "error": {
+      "invalid_bbox": "Ongeldige bounding box. Gebruik het formaat min_lon,min_lat,max_lon,max_lat.",
+      "bbox_too_large": "Deze bounding box is te groot ({bbox_size}). De NDW-API staat een oppervlakte van maximaal 1,0 vierkante graad toe, ongeveer 100 × 75 km op Nederlandse breedtegraden. Teken een kleiner gebied.",
+      "cannot_connect": "Kon geen verbinding maken met de NDW-laadpunten-API.",
+      "rate_limited": "Op dit moment te veel verzoeken naar de NDW-API (max. 10 per seconde). Wacht even en probeer het opnieuw.",
+      "no_stations_found": "Er zijn geen laadpunten gevonden binnen deze bounding box."
+    },
+    "abort": {
+      "already_configured": "Dit laadpunt is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ververssnelheid",
+        "description": "Hoe vaak moet dit laadpunt worden uitgelezen?",
+        "data": {
+          "scan_interval": "Ververssnelheid"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "available": { "name": "Beschikbare aansluitingen" },
+      "total": { "name": "Totaal aantal aansluitingen" },
+      "connector_type": {
+        "name": "Connectortype",
+        "state": {
+          "CHADEMO": "CHAdeMO",
+          "CHAOJI": "ChaoJi",
+          "DOMESTIC_A": "Huishoudelijke stekker type A",
+          "DOMESTIC_B": "Huishoudelijke stekker type B",
+          "DOMESTIC_C": "Huishoudelijke stekker type C (Europlug)",
+          "DOMESTIC_D": "Huishoudelijke stekker type D",
+          "DOMESTIC_E": "Huishoudelijke stekker type E (Frans/Belgisch)",
+          "DOMESTIC_F": "Huishoudelijke stekker type F (Schuko)",
+          "DOMESTIC_G": "Huishoudelijke stekker type G (Brits)",
+          "DOMESTIC_H": "Huishoudelijke stekker type H",
+          "DOMESTIC_I": "Huishoudelijke stekker type I",
+          "DOMESTIC_J": "Huishoudelijke stekker type J",
+          "DOMESTIC_K": "Huishoudelijke stekker type K",
+          "DOMESTIC_L": "Huishoudelijke stekker type L (Italiaans)",
+          "DOMESTIC_M": "Huishoudelijke stekker type M",
+          "DOMESTIC_N": "Huishoudelijke stekker type N",
+          "DOMESTIC_O": "Huishoudelijke stekker type O",
+          "GBT_AC": "GB/T AC",
+          "GBT_DC": "GB/T DC",
+          "IEC_60309_2_single_16": "Industriële contactdoos, 1-fase 16A (IEC 60309)",
+          "IEC_60309_2_three_16": "Industriële contactdoos, 3-fase 16A (IEC 60309)",
+          "IEC_60309_2_three_32": "Industriële contactdoos, 3-fase 32A (IEC 60309)",
+          "IEC_60309_2_three_64": "Industriële contactdoos, 3-fase 64A (IEC 60309)",
+          "IEC_62196_T1": "Type 1 (IEC 62196, J1772)",
+          "IEC_62196_T1_COMBO": "Type 1 Combo (CCS1)",
+          "IEC_62196_T2": "Type 2 (IEC 62196, Mennekes)",
+          "IEC_62196_T2_COMBO": "Type 2 Combo (CCS2)",
+          "IEC_62196_T3A": "Type 3A (IEC 62196)",
+          "IEC_62196_T3C": "Type 3C (IEC 62196, Scame)",
+          "NEMA_5_20": "NEMA 5-20",
+          "NEMA_6_30": "NEMA 6-30",
+          "NEMA_6_50": "NEMA 6-50",
+          "NEMA_10_30": "NEMA 10-30",
+          "NEMA_10_50": "NEMA 10-50",
+          "NEMA_14_30": "NEMA 14-30",
+          "NEMA_14_50": "NEMA 14-50",
+          "PANTOGRAPH_BOTTOM_UP": "Pantograaf (van onderen)",
+          "PANTOGRAPH_TOP_DOWN": "Pantograaf (van boven)",
+          "TESLA_R": "Tesla (Roadster)",
+          "TESLA_S": "Tesla (Model S / destination)"
+        }
+      },
+      "connector_format": {
+        "name": "Aansluitvorm",
+        "state": {
+          "CABLE": "Vaste kabel",
+          "SOCKET": "Stopcontact (eigen kabel nodig)"
+        }
+      },
+      "power_max": { "name": "Hoogste vermogen" },
+      "power_min": { "name": "Laagste vermogen" },
+      "power_type": {
+        "name": "Stroomtype",
+        "state": {
+          "AC1": "AC (1-fase)",
+          "AC2": "AC (2-fase)",
+          "AC2_SPLIT": "AC (gesplitste fase)",
+          "AC3": "AC (3-fase)",
+          "DC": "DC (snelladen)"
+        }
+      },
+      "address": { "name": "Adres" },
+      "operator": { "name": "Exploitant" },
+      "last_updated": { "name": "Laatst bijgewerkt" },
+      "country": { "name": "Land" },
+      "station_id": { "name": "Station-ID" }
+    },
+    "device_tracker": {
+      "location": { "name": "Locatie" }
+    }
+  }
+}
