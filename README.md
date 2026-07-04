@@ -25,8 +25,10 @@ entities.
 
 ### HACS (custom repository)
 
-1. In HACS, add this repository as a custom repository (category:
-   Integration).
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MrNick4B&repository=HomeAssistant-NDW-ChargePoints&category=integration)
+
+1. Click the badge above (or in HACS, add this repository as a custom
+   repository manually, category: Integration).
 2. Install "NDW Charge Points".
 3. Restart Home Assistant.
 
