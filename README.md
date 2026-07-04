@@ -5,13 +5,14 @@
 A Home Assistant custom integration for the Dutch [NDW (Nationaal
 Dataportaal Wegverkeer)](https://www.ndw.nu/) DAFNE
 [`charge-point-data`](https://docs.ndw.nu/data-uitwisseling/interface-beschrijvingen/dafne-api/dafne_api_consumer_pull/)
-API. Draw a bounding box, pick a charge point, and monitor its live
-availability, connector info and location as native Home Assistant
-entities.
+API. Search near an address or draw a bounding box, pick a charge point,
+and monitor its live availability, connector info and location as native
+Home Assistant entities.
 
 ## Features
 
-- Search for charge points by drawing a bounding box (e.g. with
+- Search for charge points near an address (also finds ones just across
+  the border in Belgium/Germany), or by drawing a bounding box (e.g. with
   [bboxfinder.com](https://bboxfinder.com/))
 - One Home Assistant device per charge point, added and removed
   independently of any others
@@ -42,10 +43,14 @@ entities.
 
 1. Go to **Settings → Devices & services → Add integration** and search for
    **NDW Charge Points**.
-2. Draw a bounding box around the area you want to search, e.g. with
-   [bboxfinder.com](https://bboxfinder.com/). Copy the coordinates shown
-   under **Box** (format `min_lon,min_lat,max_lon,max_lat`) into the form.
-3. Home Assistant fetches every charge point inside that box and shows a
+2. Choose how to search:
+   - **Search near an address**: enter an address in the Netherlands and
+     a search radius (0.2–5 km). Also finds charge points just across the
+     border in Belgium or Germany.
+   - **Draw a bounding box**: draw a rectangle on
+     [bboxfinder.com](https://bboxfinder.com/) and paste the coordinates
+     shown under **Box** (format `min_lon,min_lat,max_lon,max_lat`).
+3. Home Assistant fetches every charge point in that area and shows a
    list with address, operator and current availability. Pick the one you
    want to monitor and finish the flow. It's created as its own device.
 4. To monitor another charge point (from the same or a different area),
@@ -95,12 +100,18 @@ needed.
 ## Notes
 
 - Polls every 120 seconds by default (configurable per device, 30–3600
-  seconds). Each device polls independently and fetches its whole
-  original bounding box, then picks out just its own charge point.
+  seconds). The (possibly large) area you searched in during setup is
+  only used to find candidates once; once you pick a charge point, its
+  device polls a small area tightly around just that one station, not
+  the whole original search area.
 - Every request this integration makes, across all devices and the setup
   flow, shares one rate limiter capped at ~8 requests/second, comfortably
   under the API's 10/s limit. This holds even when many charge points are
   configured, including right after Home Assistant starts.
+- Address search uses [OpenStreetMap
+  Nominatim](https://nominatim.openstreetmap.org/) (© OpenStreetMap
+  contributors), rate-limited separately to stay within their usage
+  policy, and only queried once per address you enter (no autocomplete).
 - Data is provided by NDW. This integration is not affiliated with or
   endorsed by NDW; the NDW logo above is used for attribution only.
 

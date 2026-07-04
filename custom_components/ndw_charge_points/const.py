@@ -31,3 +31,14 @@ FEATURE_RESULT_LIMIT: Final = 1000
 # Home Assistant starts) still can't exceed it.
 MIN_REQUEST_INTERVAL: Final = 0.125
 DATA_RATE_LIMITER: Final = "rate_limiter"
+
+# Nominatim (OpenStreetMap) usage policy caps this at an "absolute maximum
+# of 1 request per second"; 1.1s leaves a small safety margin. This is a
+# separate limiter from MIN_REQUEST_INTERVAL above since it's a different
+# service with its own, stricter limit.
+NOMINATIM_MIN_REQUEST_INTERVAL: Final = 1.1
+DATA_GEOCODING_RATE_LIMITER: Final = "geocoding_rate_limiter"
+
+DEFAULT_SEARCH_RADIUS_KM: Final = 0.3
+MIN_SEARCH_RADIUS_KM: Final = 0.2
+MAX_SEARCH_RADIUS_KM: Final = 5.0

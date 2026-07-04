@@ -2,10 +2,26 @@
   "config": {
     "step": {
       "user": {
+        "title": "Hoe wil je zoeken?",
+        "description": "Zoek bij een adres voor een snelle zoekopdracht in de buurt, of teken een bounding box voor preciezere controle over het zoekgebied.",
+        "menu_options": {
+          "address": "Zoeken bij een adres",
+          "bbox": "Bounding box tekenen"
+        }
+      },
+      "bbox": {
         "title": "Zoekgebied (bounding box) instellen",
         "description": "Geef het gebied op waarin je naar laadpunten wilt zoeken, in de vorm van een bounding box.\n\nTeken een rechthoek op {bboxfinder_url} en kopieer de coördinaten die onder \"Box\" verschijnen naar het veld hieronder (formaat: min_lon,min_lat,max_lon,max_lat). Voorbeeld: {bbox_example}.",
         "data": {
           "bbox": "Bounding box"
+        }
+      },
+      "address": {
+        "title": "Zoeken bij een adres",
+        "description": "Vul een Nederlands adres in en hoe ver daaromheen gezocht moet worden. Vindt ook laadpunten net over de grens in België en Duitsland.",
+        "data": {
+          "address": "Adres",
+          "search_radius": "Zoekstraal"
         }
       },
       "stations": {
@@ -21,7 +37,9 @@
       "bbox_too_large": "Deze bounding box is te groot ({bbox_size}). De NDW-API staat een oppervlakte van maximaal 1,0 vierkante graad toe, ongeveer 100 × 75 km op Nederlandse breedtegraden. Teken een kleiner gebied.",
       "cannot_connect": "Kon geen verbinding maken met de NDW-laadpunten-API.",
       "rate_limited": "Op dit moment te veel verzoeken naar de NDW-API (max. 10 per seconde). Wacht even en probeer het opnieuw.",
-      "no_stations_found": "Er zijn geen laadpunten gevonden binnen deze bounding box."
+      "no_stations_found": "Er zijn geen laadpunten gevonden binnen deze bounding box.",
+      "address_not_found": "Dit adres kon niet worden gevonden. Probeer een specifieker adres in Nederland, of net over de grens in België of Duitsland.",
+      "geocoding_failed": "Dit adres kon nu niet worden opgezocht. Wacht even en probeer het opnieuw."
     },
     "abort": {
       "already_configured": "Dit laadpunt is al geconfigureerd."

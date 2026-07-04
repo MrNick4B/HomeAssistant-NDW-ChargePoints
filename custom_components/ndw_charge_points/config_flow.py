@@ -35,15 +35,37 @@ from .const import (
     CONF_BBOX,
     CONF_STATION_ID,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SEARCH_RADIUS_KM,
     DOMAIN,
     FEATURE_RESULT_LIMIT,
     MAX_BBOX_AREA_DEG2,
     MAX_SCAN_INTERVAL,
+    MAX_SEARCH_RADIUS_KM,
     MIN_SCAN_INTERVAL,
+    MIN_SEARCH_RADIUS_KM,
+)
+from .geocoding import (
+    AddressNotFoundError,
+    GeocodingConnectionError,
+    async_geocode_address,
+    async_get_geocoding_rate_limiter,
 )
 
 BBOX_EXAMPLE = "5.136386,52.081982,5.172843,52.097560"
 BBOXFINDER_URL = "https://bboxfinder.com"
+
+# Form field keys below are only used transiently during setup (to build a
+# bbox); they aren't part of the persisted config entry data.
+CONF_ADDRESS = "address"
+CONF_SEARCH_RADIUS = "search_radius"
+
+# Margin kept around a single selected charge point once it's chosen, so
+# ongoing polling fetches just that station instead of re-fetching
+# whatever (possibly much larger) area was used to find it.
+STATION_BBOX_RADIUS_KM = 0.05
+
+KM_PER_DEGREE_LAT = 110.57
+KM_PER_DEGREE_LON_AT_EQUATOR = 111.32
 
 
 class BboxTooLargeError(ValueError):
@@ -79,9 +101,31 @@ def _parse_bbox(value: str) -> str:
 def _bbox_size_km(err: BboxTooLargeError) -> str:
     """Approximate width x height of a too-large bbox, for the error message."""
     lat_mid = (err.min_lat + err.max_lat) / 2
-    width_km = (err.max_lon - err.min_lon) * 111.32 * math.cos(math.radians(lat_mid))
-    height_km = (err.max_lat - err.min_lat) * 110.57
+    width_km = (err.max_lon - err.min_lon) * KM_PER_DEGREE_LON_AT_EQUATOR * math.cos(
+        math.radians(lat_mid)
+    )
+    height_km = (err.max_lat - err.min_lat) * KM_PER_DEGREE_LAT
     return f"{width_km:.0f} × {height_km:.0f} km"
+
+
+def _bbox_from_point(lon: float, lat: float, radius_km: float) -> str:
+    """Build a "min_lon,min_lat,max_lon,max_lat" bbox centered on a point."""
+    lon_delta = radius_km / (KM_PER_DEGREE_LON_AT_EQUATOR * math.cos(math.radians(lat)))
+    lat_delta = radius_km / KM_PER_DEGREE_LAT
+    return f"{lon - lon_delta},{lat - lat_delta},{lon + lon_delta},{lat + lat_delta}"
+
+
+def _minimal_bbox_for_feature(feature: dict[str, Any], fallback_bbox: str) -> str:
+    """A small bbox tightly around one feature's own coordinates.
+
+    Falls back to whatever bbox found it in the first place if the feature
+    is somehow missing coordinates (shouldn't normally happen).
+    """
+    coordinates = feature.get("geometry", {}).get("coordinates")
+    if not coordinates or len(coordinates) < 2:
+        return fallback_bbox
+    lon, lat = coordinates[0], coordinates[1]
+    return _bbox_from_point(lon, lat, STATION_BBOX_RADIUS_KM)
 
 
 def _result_count_notice(features: list[dict[str, Any]]) -> str:
@@ -120,7 +164,7 @@ def _station_title(feature: dict[str, Any]) -> str:
 
 
 class NwbChargePointsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow: pick a bounding box, then pick one charge point in it."""
+    """Handle a config flow: find a bbox (drawn or from an address), then pick one charge point in it."""
 
     VERSION = 1
 
@@ -129,6 +173,38 @@ class NwbChargePointsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._features: list[dict[str, Any]] = []
 
     async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        return self.async_show_menu(step_id="user", menu_options=["address", "bbox"])
+
+    async def _async_fetch_and_continue(
+        self, bbox: str, errors: dict[str, str]
+    ) -> config_entries.ConfigFlowResult | None:
+        """Fetch charge points for `bbox`; on success, store and move on.
+
+        Returns None (caller should re-show its form) if anything failed;
+        `errors` is updated in place with the relevant error key.
+        """
+        session = async_get_clientsession(self.hass)
+        rate_limiter = async_get_rate_limiter(self.hass)
+        try:
+            features = await async_fetch_charge_points(session, rate_limiter, bbox)
+        except ChargePointRateLimitedError:
+            errors["base"] = "rate_limited"
+            return None
+        except ChargePointConnectionError:
+            errors["base"] = "cannot_connect"
+            return None
+
+        if not features:
+            errors["base"] = "no_stations_found"
+            return None
+
+        self._bbox = bbox
+        self._features = features
+        return await self.async_step_stations()
+
+    async def async_step_bbox(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         errors: dict[str, str] = {}
@@ -145,27 +221,58 @@ class NwbChargePointsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors["base"] = "invalid_bbox"
             else:
-                session = async_get_clientsession(self.hass)
-                rate_limiter = async_get_rate_limiter(self.hass)
-                try:
-                    features = await async_fetch_charge_points(session, rate_limiter, bbox)
-                except ChargePointRateLimitedError:
-                    errors["base"] = "rate_limited"
-                except ChargePointConnectionError:
-                    errors["base"] = "cannot_connect"
-                else:
-                    if not features:
-                        errors["base"] = "no_stations_found"
-                    else:
-                        self._bbox = bbox
-                        self._features = features
-                        return await self.async_step_stations()
+                result = await self._async_fetch_and_continue(bbox, errors)
+                if result is not None:
+                    return result
 
         return self.async_show_form(
-            step_id="user",
+            step_id="bbox",
             data_schema=vol.Schema({vol.Required(CONF_BBOX): str}),
             errors=errors,
             description_placeholders=description_placeholders,
+        )
+
+    async def async_step_address(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            address = user_input[CONF_ADDRESS]
+            radius_km = user_input[CONF_SEARCH_RADIUS]
+            session = async_get_clientsession(self.hass)
+            geocoding_rate_limiter = async_get_geocoding_rate_limiter(self.hass)
+            try:
+                lon, lat = await async_geocode_address(
+                    session, geocoding_rate_limiter, address
+                )
+            except AddressNotFoundError:
+                errors["base"] = "address_not_found"
+            except GeocodingConnectionError:
+                errors["base"] = "geocoding_failed"
+            else:
+                bbox = _bbox_from_point(lon, lat, radius_km)
+                result = await self._async_fetch_and_continue(bbox, errors)
+                if result is not None:
+                    return result
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_ADDRESS): str,
+                vol.Required(
+                    CONF_SEARCH_RADIUS, default=DEFAULT_SEARCH_RADIUS_KM
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=MIN_SEARCH_RADIUS_KM,
+                        max=MAX_SEARCH_RADIUS_KM,
+                        step=0.1,
+                        unit_of_measurement="km",
+                        mode=NumberSelectorMode.BOX,
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(
+            step_id="address", data_schema=schema, errors=errors
         )
 
     async def async_step_stations(
@@ -177,9 +284,11 @@ class NwbChargePointsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             station_id = user_input[CONF_STATION_ID]
             await self.async_set_unique_id(station_id)
             self._abort_if_unique_id_configured()
+            feature = by_id[station_id]
+            bbox = _minimal_bbox_for_feature(feature, fallback_bbox=self._bbox)
             return self.async_create_entry(
-                title=_station_title(by_id[station_id]),
-                data={CONF_BBOX: self._bbox, CONF_STATION_ID: station_id},
+                title=_station_title(feature),
+                data={CONF_BBOX: bbox, CONF_STATION_ID: station_id},
             )
 
         schema = vol.Schema(

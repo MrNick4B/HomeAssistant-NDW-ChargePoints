@@ -2,10 +2,26 @@
   "config": {
     "step": {
       "user": {
+        "title": "How do you want to search?",
+        "description": "Search near an address for a quick, nearby search, or draw a bounding box for more precise control over the search area.",
+        "menu_options": {
+          "address": "Search near an address",
+          "bbox": "Draw a bounding box"
+        }
+      },
+      "bbox": {
         "title": "Define a bounding box",
         "description": "Enter the area you want to search for EV charge points as a bounding box.\n\nDraw a box on {bboxfinder_url}, then copy the coordinates shown under \"Box\" and paste it in the field below (format: min_lon,min_lat,max_lon,max_lat). Example: {bbox_example}.",
         "data": {
           "bbox": "Bounding box"
+        }
+      },
+      "address": {
+        "title": "Search near an address",
+        "description": "Enter an address in the Netherlands and how far around it to search. Also finds charge points just across the border in Belgium and Germany.",
+        "data": {
+          "address": "Address",
+          "search_radius": "Search radius"
         }
       },
       "stations": {
@@ -21,7 +37,9 @@
       "bbox_too_large": "This bounding box is too large ({bbox_size}). The NDW API allows a maximum area of 1.0 square degree, roughly 100 × 75 km at Dutch latitudes. Draw a smaller box.",
       "cannot_connect": "Could not connect to the NDW charge point API.",
       "rate_limited": "Too many requests to the NDW API right now (max 10 per second). Please wait a moment and try again.",
-      "no_stations_found": "No charge points were found within this bounding box."
+      "no_stations_found": "No charge points were found within this bounding box.",
+      "address_not_found": "This address could not be found. Try a more specific address in the Netherlands, or just across the border in Belgium or Germany.",
+      "geocoding_failed": "Could not look up this address right now. Please wait a moment and try again."
     },
     "abort": {
       "already_configured": "This charge point is already configured."
