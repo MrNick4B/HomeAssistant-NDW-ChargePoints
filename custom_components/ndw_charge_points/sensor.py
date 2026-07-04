@@ -23,55 +23,58 @@ from .coordinator import ChargePointDataUpdateCoordinator
 from .entity import ChargePointEntity
 
 # The OCPI connector_type, power_type and connector_format enums as used by
-# the NDW API. Kept in sync with the "state" translations in
+# the NDW API. HA requires ENUM sensor states (and their translation keys)
+# to be lowercase snake_case, so these are lowercased versions of the raw
+# API values; `_primary_value_lower` below lowercases the raw value to
+# match. Kept in sync with the "state" translations in
 # strings.json/translations — add a new value here *and* there if the API
 # ever adds one.
 CONNECTOR_TYPE_OPTIONS: list[str] = [
-    "CHADEMO",
-    "CHAOJI",
-    "DOMESTIC_A",
-    "DOMESTIC_B",
-    "DOMESTIC_C",
-    "DOMESTIC_D",
-    "DOMESTIC_E",
-    "DOMESTIC_F",
-    "DOMESTIC_G",
-    "DOMESTIC_H",
-    "DOMESTIC_I",
-    "DOMESTIC_J",
-    "DOMESTIC_K",
-    "DOMESTIC_L",
-    "DOMESTIC_M",
-    "DOMESTIC_N",
-    "DOMESTIC_O",
-    "GBT_AC",
-    "GBT_DC",
-    "IEC_60309_2_single_16",
-    "IEC_60309_2_three_16",
-    "IEC_60309_2_three_32",
-    "IEC_60309_2_three_64",
-    "IEC_62196_T1",
-    "IEC_62196_T1_COMBO",
-    "IEC_62196_T2",
-    "IEC_62196_T2_COMBO",
-    "IEC_62196_T3A",
-    "IEC_62196_T3C",
-    "NEMA_5_20",
-    "NEMA_6_30",
-    "NEMA_6_50",
-    "NEMA_10_30",
-    "NEMA_10_50",
-    "NEMA_14_30",
-    "NEMA_14_50",
-    "PANTOGRAPH_BOTTOM_UP",
-    "PANTOGRAPH_TOP_DOWN",
-    "TESLA_R",
-    "TESLA_S",
+    "chademo",
+    "chaoji",
+    "domestic_a",
+    "domestic_b",
+    "domestic_c",
+    "domestic_d",
+    "domestic_e",
+    "domestic_f",
+    "domestic_g",
+    "domestic_h",
+    "domestic_i",
+    "domestic_j",
+    "domestic_k",
+    "domestic_l",
+    "domestic_m",
+    "domestic_n",
+    "domestic_o",
+    "gbt_ac",
+    "gbt_dc",
+    "iec_60309_2_single_16",
+    "iec_60309_2_three_16",
+    "iec_60309_2_three_32",
+    "iec_60309_2_three_64",
+    "iec_62196_t1",
+    "iec_62196_t1_combo",
+    "iec_62196_t2",
+    "iec_62196_t2_combo",
+    "iec_62196_t3a",
+    "iec_62196_t3c",
+    "nema_5_20",
+    "nema_6_30",
+    "nema_6_50",
+    "nema_10_30",
+    "nema_10_50",
+    "nema_14_30",
+    "nema_14_50",
+    "pantograph_bottom_up",
+    "pantograph_top_down",
+    "tesla_r",
+    "tesla_s",
 ]
 
-POWER_TYPE_OPTIONS: list[str] = ["AC1", "AC2", "AC2_SPLIT", "AC3", "DC"]
+POWER_TYPE_OPTIONS: list[str] = ["ac1", "ac2", "ac2_split", "ac3", "dc"]
 
-CONNECTOR_FORMAT_OPTIONS: list[str] = ["CABLE", "SOCKET"]
+CONNECTOR_FORMAT_OPTIONS: list[str] = ["cable", "socket"]
 
 # Icon shown when we know exactly which connector shape a type/format is;
 # anything without a dedicated MDI glyph falls back to the generic
@@ -125,6 +128,18 @@ def _primary_value(properties: dict[str, Any], field: str) -> str | None:
     if not totals:
         return None
     return max(sorted(totals), key=lambda value: totals[value])
+
+
+def _primary_value_lower(properties: dict[str, Any], field: str) -> str | None:
+    """Same as `_primary_value`, lowercased for use as an ENUM sensor state.
+
+    HA requires device_class ENUM states (and their translations) to be
+    lowercase snake_case; the raw API values (e.g. "IEC_62196_T2") aren't.
+    Icon lookups intentionally keep using the raw-cased `_primary_value`
+    instead, since `CONNECTOR_TYPE_ICONS` is keyed on the original casing.
+    """
+    value = _primary_value(properties, field)
+    return value.lower() if value else None
 
 
 def _power_values_w(properties: dict[str, Any]) -> list[float]:
@@ -199,7 +214,7 @@ SENSOR_DESCRIPTIONS: tuple[ChargePointSensorEntityDescription, ...] = (
         icon=CONNECTOR_FAMILY_ICON,
         device_class=SensorDeviceClass.ENUM,
         options=CONNECTOR_TYPE_OPTIONS,
-        value_fn=lambda feature: _primary_value(
+        value_fn=lambda feature: _primary_value_lower(
             feature.get("properties", {}), "connector_type"
         ),
         attrs_fn=lambda feature: {
@@ -212,7 +227,7 @@ SENSOR_DESCRIPTIONS: tuple[ChargePointSensorEntityDescription, ...] = (
         icon=CONNECTOR_FAMILY_ICON,
         device_class=SensorDeviceClass.ENUM,
         options=CONNECTOR_FORMAT_OPTIONS,
-        value_fn=lambda feature: _primary_value(
+        value_fn=lambda feature: _primary_value_lower(
             feature.get("properties", {}), "connector_format"
         ),
         attrs_fn=lambda feature: {
@@ -246,7 +261,7 @@ SENSOR_DESCRIPTIONS: tuple[ChargePointSensorEntityDescription, ...] = (
         icon="mdi:current-ac",
         device_class=SensorDeviceClass.ENUM,
         options=POWER_TYPE_OPTIONS,
-        value_fn=lambda feature: _primary_value(feature.get("properties", {}), "power_type"),
+        value_fn=lambda feature: _primary_value_lower(feature.get("properties", {}), "power_type"),
         attrs_fn=lambda feature: {
             "types": _distinct_values(feature.get("properties", {}), "power_type")
         },
@@ -340,7 +355,7 @@ class ChargePointSensor(ChargePointEntity, SensorEntity):
             connector_type = _primary_value(self._properties, "connector_type")
             return CONNECTOR_TYPE_ICONS.get(connector_type, CONNECTOR_FAMILY_ICON)
         if self.entity_description.key == "connector_format":
-            if self.native_value == "SOCKET":
+            if self.native_value == "socket":
                 return SOCKET_ICON
             # CABLE (or unknown): show the plug on the end of the cable.
             connector_type = _primary_value(self._properties, "connector_type")
